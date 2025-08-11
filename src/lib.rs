@@ -1,31 +1,35 @@
 /// A collection of particles and emitters
 pub trait ParticleSystem {
-    type Position;
+    /// The type of particle that this system will contain
+    type ParticleType: Particle + ?Sized;
+
+    /// The type of emitter that this system will contain
+    type EmitterType: ParticleEmitter<ParticleType = Self::ParticleType> + ?Sized;
 
     /// Returns an iterator over all currently alive particles in the system
     fn iter_particles(&self)
-    -> impl Iterator<Item = &Box<dyn Particle<Position = Self::Position>>>;
+    -> impl Iterator<Item = &Box<Self::ParticleType>>;
 
     /// Returns a mutable iterator over all currently alive particles in the system
     fn iter_particles_mut(
         &mut self,
-    ) -> impl Iterator<Item = &mut Box<dyn Particle<Position = Self::Position>>>;
+    ) -> impl Iterator<Item = &mut Box<Self::ParticleType>>;
 
     /// Returns an iterator over all currently alive particle emitters in the system
     fn iter_emitters(
         &self,
-    ) -> impl Iterator<Item = &Box<dyn ParticleEmitter<Position = Self::Position>>>;
+    ) -> impl Iterator<Item = &Box<Self::EmitterType>>;
 
     /// Returns a mutable iterator over all currently alive particle emitters in the system
     fn iter_emitters_mut(
         &mut self,
-    ) -> impl Iterator<Item = &mut Box<dyn ParticleEmitter<Position = Self::Position>>>;
+    ) -> impl Iterator<Item = &mut Box<Self::EmitterType>>;
 
     /// Adds a particle to the system
-    fn add_particle(&mut self, particle: Box<dyn Particle<Position = Self::Position>>);
+    fn add_particle(&mut self, particle: Box<Self::ParticleType>);
 
     /// Adds an emitter to the system
-    fn add_emitter(&mut self, emitter: Box<dyn ParticleEmitter<Position = Self::Position>>);
+    fn add_emitter(&mut self, emitter: Box<Self::EmitterType>);
 
     /// Iterates over all currently alive particles in the system and calls their update method
     fn update_particles(&mut self, dt: f64) {
@@ -35,7 +39,7 @@ pub trait ParticleSystem {
     }
 
     /// Iterates over all currently alive particle emitters in the system and calls their update method, returning the vector of new particles to add to the system
-    fn update_emitters(&mut self, dt: f64) -> Vec<Box<dyn Particle<Position = Self::Position>>> {
+    fn update_emitters(&mut self, dt: f64) -> Vec<Box<Self::ParticleType>> {
         self.iter_emitters_mut()
             .flat_map(|emitter| emitter.update(dt))
             .collect()
@@ -80,42 +84,45 @@ pub trait ParticleSystem {
 #[derive(Default)]
 pub struct BaseParticleSystem<P> {
     particles: Vec<Box<dyn Particle<Position = P>>>,
-    emitters: Vec<Box<dyn ParticleEmitter<Position = P>>>,
+    emitters: Vec<Box<dyn ParticleEmitter<ParticleType = dyn Particle<Position = P>>>>,
 }
 
 impl<P> ParticleSystem for BaseParticleSystem<P> {
-    /// The position type of the particles in the system
-    type Position = P;
+    /// This system can hold any particle that implements `Particle` with the same `Position` type
+    type ParticleType = dyn Particle<Position = P>;
+
+    /// This system can hold any emitter that emits any particle that implements `Particle` with the same `Position` type
+    type EmitterType = dyn ParticleEmitter<ParticleType = Self::ParticleType>;
 
     fn iter_particles(
         &self,
-    ) -> impl Iterator<Item = &Box<dyn Particle<Position = Self::Position>>> {
+    ) -> impl Iterator<Item = &Box<Self::ParticleType>> {
         self.particles.iter()
     }
 
     fn iter_particles_mut(
         &mut self,
-    ) -> impl Iterator<Item = &mut Box<dyn Particle<Position = Self::Position>>> {
+    ) -> impl Iterator<Item = &mut Box<Self::ParticleType>> {
         self.particles.iter_mut()
     }
 
     fn iter_emitters(
         &self,
-    ) -> impl Iterator<Item = &Box<dyn ParticleEmitter<Position = Self::Position>>> {
+    ) -> impl Iterator<Item = &Box<Self::EmitterType>> {
         self.emitters.iter()
     }
 
     fn iter_emitters_mut(
         &mut self,
-    ) -> impl Iterator<Item = &mut Box<dyn ParticleEmitter<Position = Self::Position>>> {
+    ) -> impl Iterator<Item = &mut Box<Self::EmitterType>> {
         self.emitters.iter_mut()
     }
 
-    fn add_particle(&mut self, particle: Box<dyn Particle<Position = Self::Position>>) {
+    fn add_particle(&mut self, particle: Box<Self::ParticleType>) {
         self.particles.push(particle);
     }
 
-    fn add_emitter(&mut self, emitter: Box<dyn ParticleEmitter<Position = Self::Position>>) {
+    fn add_emitter(&mut self, emitter: Box<Self::EmitterType>) {
         self.emitters.push(emitter);
     }
 
@@ -130,11 +137,11 @@ impl<P> ParticleSystem for BaseParticleSystem<P> {
 
 /// Creates new particles
 pub trait ParticleEmitter {
-    /// The position type of the particles to be emitted
-    type Position;
+    /// The type of the particles to be emitted
+    type ParticleType: Particle + ?Sized;
 
     /// Update the state of the emitter and return a vector of particles to add to the system
-    fn update(&mut self, dt: f64) -> Vec<Box<dyn Particle<Position = Self::Position>>>;
+    fn update(&mut self, dt: f64) -> Vec<Box<Self::ParticleType>>;
 
     /// Returns false if the emitter should be removed from the system
     fn is_alive(&self) -> bool;
