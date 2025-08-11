@@ -164,3 +164,28 @@ pub trait Particle {
     /// Returns false if the particle should be removed from the system
     fn is_alive(&self) -> bool;
 }
+
+/// Tracks age in a particle
+pub trait Aging {
+    /// Gets the current age of the particle
+    fn get_age(&self) -> f64;
+
+    /// Sets the current age of the particle
+    fn set_age(&mut self, age: f64);
+}
+
+/// Represents a particle that dies after a set amount of time
+pub trait MaxAging: Aging {
+    /// Gets the max age of the particle
+    fn get_max_age(&self) -> f64;
+
+    /// Gets the age of the particle from 0.0 to 1.0
+    fn get_age_percent(&self) -> f64 {
+        self.get_age() / self.get_max_age()
+    }
+
+    /// Returns false if the particle's age percent is greater than or equal to 1.0
+    fn is_alive(&self) -> bool {
+        self.get_age_percent() < 1.0
+    }
+}
