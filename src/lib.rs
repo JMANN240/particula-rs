@@ -74,18 +74,26 @@ pub trait ParticleSystem {
 /// A base particle system using vectors to store the particles and emitters
 ///
 /// This should suffice for most particle system needs
-#[derive(Default)]
-pub struct BaseParticleSystem<P> {
-    particles: Vec<Box<dyn Particle<Position = P>>>,
-    emitters: Vec<Box<dyn ParticleEmitter<ParticleType = Box<dyn Particle<Position = P>>>>>,
+pub struct VecParticleSystem<P, E> {
+    particles: Vec<P>,
+    emitters: Vec<E>,
 }
 
-impl<P> ParticleSystem for BaseParticleSystem<P> {
-    /// This system can hold any particle that implements `Particle` with the same `Position` type
-    type ParticleType = Box<dyn Particle<Position = P>>;
+impl<P: Particle, E: ParticleEmitter<ParticleType = P>> Default for VecParticleSystem<P, E> {
+    fn default() -> Self {
+        Self {
+            particles: Vec::default(),
+            emitters: Vec::default(),
+        }
+    }
+}
 
-    /// This system can hold any emitter that emits any particle that implements `Particle` with the same `Position` type
-    type EmitterType = Box<dyn ParticleEmitter<ParticleType = Self::ParticleType>>;
+impl<P: Particle, E: ParticleEmitter<ParticleType = P>> ParticleSystem for VecParticleSystem<P, E> {
+    /// This system can hold any particle that implements `Particle` with the same `Coordinate` type
+    type ParticleType = P;
+
+    /// This system can hold any emitter that emits any particle that implements `Particle` with the same `Coordinate` type
+    type EmitterType = E;
 
     fn iter_particles(&self) -> impl Iterator<Item = &Self::ParticleType> {
         self.particles.iter()
@@ -120,6 +128,11 @@ impl<P> ParticleSystem for BaseParticleSystem<P> {
     }
 }
 
+pub type BaseParticleSystem<C> = VecParticleSystem<
+    Box<dyn Particle<Coordinate = C>>,
+    Box<dyn ParticleEmitter<ParticleType = Box<dyn Particle<Coordinate = C>>>>,
+>;
+
 /// Creates new particles
 pub trait ParticleEmitter {
     /// The type of the particles to be emitted
@@ -147,10 +160,10 @@ impl<E: ParticleEmitter + ?Sized> ParticleEmitter for Box<E> {
 /// A representation of some particle space
 pub trait Particle {
     /// The position type of the particle
-    type Position;
+    type Coordinate;
 
     /// The position of the particle in space
-    fn get_position(&self) -> Self::Position;
+    fn get_position(&self) -> Self::Coordinate;
 
     /// Updates the state of the particle
     fn update(&mut self, dt: f64);
@@ -163,9 +176,9 @@ pub trait Particle {
 }
 
 impl<P: Particle + ?Sized> Particle for Box<P> {
-    type Position = P::Position;
+    type Coordinate = P::Coordinate;
 
-    fn get_position(&self) -> Self::Position {
+    fn get_position(&self) -> Self::Coordinate {
         P::get_position(self)
     }
 

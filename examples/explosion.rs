@@ -34,7 +34,7 @@ impl BaseParticle {
 }
 
 impl Particle for BaseParticle {
-    type Position = DVec2;
+    type Coordinate = DVec2;
 
     fn get_position(&self) -> DVec2 {
         self.position
@@ -61,7 +61,7 @@ impl Particle for BaseParticle {
 
 #[macroquad::main(window_conf)]
 async fn main() {
-    let mut particle_system = BaseParticleSystem::default();
+    let mut particle_system = BaseParticleSystem::<DVec2>::default();
 
     loop {
         particle_system.update(get_frame_time() as f64);
