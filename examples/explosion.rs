@@ -1,9 +1,9 @@
 use std::f64::consts::PI;
 
-use ::glam::{dvec2, DVec2};
+use ::glam::{DVec2, dvec2};
+use ::rand::random_range;
 use macroquad::prelude::*;
 use particula_rs::{BaseParticleSystem, Particle, ParticleSystem};
-use ::rand::random_range;
 
 fn window_conf() -> Conf {
     Conf {
@@ -23,11 +23,7 @@ pub struct BaseParticle {
 }
 
 impl BaseParticle {
-    pub fn new(
-        position: DVec2,
-        velocity: DVec2,
-        max_age: f64,
-    ) -> Self {
+    pub fn new(position: DVec2, velocity: DVec2, max_age: f64) -> Self {
         Self {
             position,
             velocity,
@@ -48,7 +44,12 @@ impl Particle for BaseParticle {
     }
 
     fn draw(&self) {
-        draw_circle(self.get_position().x as f32, self.get_position().y as f32, 1.0, WHITE);
+        draw_circle(
+            self.get_position().x as f32,
+            self.get_position().y as f32,
+            1.0,
+            WHITE,
+        );
     }
 
     fn is_alive(&self) -> bool {
@@ -72,7 +73,12 @@ async fn main() {
         )));
 
         for particle in particle_system.iter_particles() {
-            draw_circle(particle.get_position().x as f32, particle.get_position().y as f32, 1.0, WHITE);
+            draw_circle(
+                particle.get_position().x as f32,
+                particle.get_position().y as f32,
+                1.0,
+                WHITE,
+            );
         }
 
         next_frame().await;
