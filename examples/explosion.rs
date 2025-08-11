@@ -34,6 +34,8 @@ impl BaseParticle {
 }
 
 impl Particle for BaseParticle {
+    type Position = DVec2;
+
     fn get_position(&self) -> DVec2 {
         self.position
     }

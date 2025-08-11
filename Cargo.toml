@@ -6,9 +6,7 @@ version = "0.1.1"
 edition = "2024"
 repository = "https://github.com/JMANN240/particula-rs"
 
-[dependencies]
-glam = "0.30.5"
-
 [dev-dependencies]
+glam = "0.30.5"
 macroquad = "0.4.14"
 rand = "0.9.2"
