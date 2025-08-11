@@ -79,7 +79,21 @@ pub struct VecParticleSystem<P, E> {
     emitters: Vec<E>,
 }
 
-impl<P: Particle, E: ParticleEmitter<ParticleType = P>> Default for VecParticleSystem<P, E> {
+impl<P, E> Clone for VecParticleSystem<P, E>
+where
+    P: Clone,
+    E: Clone,
+{
+    fn clone(&self) -> Self {
+        Self {
+            particles: self.particles.clone(),
+            emitters: self.emitters.clone(),
+        }
+    }
+}
+
+impl<P, E> Default for VecParticleSystem<P, E>
+{
     fn default() -> Self {
         Self {
             particles: Vec::default(),
