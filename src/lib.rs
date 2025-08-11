@@ -147,7 +147,7 @@ pub trait ParticleEmitter {
     fn is_alive(&self) -> bool;
 }
 
-/// A representation of some particle in 2-dimensional space
+/// A representation of some particle space
 pub trait Particle {
     /// The position type of the particle
     type Position;
