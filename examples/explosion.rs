@@ -45,15 +45,6 @@ impl Particle for BaseParticle {
         self.age += dt;
     }
 
-    fn draw(&self) {
-        draw_circle(
-            self.get_position().x as f32,
-            self.get_position().y as f32,
-            1.0,
-            WHITE,
-        );
-    }
-
     fn is_alive(&self) -> bool {
         self.age <= self.max_age
     }

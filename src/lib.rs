@@ -62,13 +62,6 @@ pub trait ParticleSystem {
         self.clean_particles();
         self.clean_emitters();
     }
-
-    /// Draws all particles in the system
-    fn draw(&self) {
-        for particle in self.iter_particles() {
-            particle.draw();
-        }
-    }
 }
 
 /// A base particle system using vectors to store the particles and emitters
@@ -182,9 +175,6 @@ pub trait Particle {
     /// Updates the state of the particle
     fn update(&mut self, dt: f64);
 
-    /// Draws the particle
-    fn draw(&self);
-
     /// Returns false if the particle should be removed from the system
     fn is_alive(&self) -> bool;
 }
@@ -198,10 +188,6 @@ impl<P: Particle + ?Sized> Particle for Box<P> {
 
     fn update(&mut self, dt: f64) {
         P::update(self, dt);
-    }
-
-    fn draw(&self) {
-        P::draw(self);
     }
 
     fn is_alive(&self) -> bool {
