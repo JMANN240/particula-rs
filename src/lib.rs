@@ -1,3 +1,5 @@
+use std::marker::PhantomData;
+
 /// A collection of particles and emitters
 pub trait ParticleSystem {
     /// The type of particle that this system will contain
@@ -67,22 +69,10 @@ pub trait ParticleSystem {
 /// A base particle system using vectors to store the particles and emitters
 ///
 /// This should suffice for most particle system needs
+#[derive(Debug, Clone)]
 pub struct VecParticleSystem<P, E> {
     particles: Vec<P>,
     emitters: Vec<E>,
-}
-
-impl<P, E> Clone for VecParticleSystem<P, E>
-where
-    P: Clone,
-    E: Clone,
-{
-    fn clone(&self) -> Self {
-        Self {
-            particles: self.particles.clone(),
-            emitters: self.emitters.clone(),
-        }
-    }
 }
 
 impl<P, E> Default for VecParticleSystem<P, E>
@@ -161,6 +151,24 @@ impl<E: ParticleEmitter + ?Sized> ParticleEmitter for Box<E> {
 
     fn is_alive(&self) -> bool {
         E::is_alive(self)
+    }
+}
+
+/// A particle emitter that never emits particles and is never alive.
+/// Useful for when you don't really need emitters in your particle system.
+pub struct NullParticleEmitter<P> {
+    phantom: PhantomData<P>,
+}
+
+impl<P: Particle> ParticleEmitter for NullParticleEmitter<P> {
+    type ParticleType = P;
+
+    fn update(&mut self, _dt: f64) -> Vec<Self::ParticleType> {
+        vec![]
+    }
+
+    fn is_alive(&self) -> bool {
+        false
     }
 }
 
