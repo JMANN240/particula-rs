@@ -156,6 +156,7 @@ impl<E: ParticleEmitter + ?Sized> ParticleEmitter for Box<E> {
 
 /// A particle emitter that never emits particles and is never alive.
 /// Useful for when you don't really need emitters in your particle system.
+#[derive(Debug, Clone, Copy)]
 pub struct NullParticleEmitter<P> {
     phantom: PhantomData<P>,
 }

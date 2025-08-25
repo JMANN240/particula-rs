@@ -2,7 +2,7 @@
 name = "particula-rs"
 description = "A simple particle library"
 license = "MIT OR Apache-2.0"
-version = "0.1.6"
+version = "0.1.7"
 edition = "2024"
 repository = "https://github.com/JMANN240/particula-rs"
 
