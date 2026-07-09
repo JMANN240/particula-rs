@@ -251,7 +251,7 @@ dependencies = [
 
 [[package]]
 name = "particula-rs"
-version = "0.1.7"
+version = "0.1.8"
 dependencies = [
  "glam 0.33.2",
  "macroquad",
