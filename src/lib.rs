@@ -1,5 +1,8 @@
 use std::marker::PhantomData;
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 /// A collection of particles and emitters
 pub trait ParticleSystem {
     /// The type of particle that this system will contain
@@ -70,6 +73,7 @@ pub trait ParticleSystem {
 ///
 /// This should suffice for most particle system needs
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct VecParticleSystem<P, E> {
     particles: Vec<P>,
     emitters: Vec<E>,
@@ -157,6 +161,7 @@ impl<E: ParticleEmitter + ?Sized> ParticleEmitter for Box<E> {
 /// A particle emitter that never emits particles and is never alive.
 /// Useful for when you don't really need emitters in your particle system.
 #[derive(Debug, Clone, Copy)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct NullParticleEmitter<P> {
     phantom: PhantomData<P>,
 }
